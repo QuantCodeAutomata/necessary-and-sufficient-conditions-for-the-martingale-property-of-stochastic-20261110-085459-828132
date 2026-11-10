@@ -37,7 +37,7 @@ EXP1_T_GRID = (0.25, 0.5, 1.0, 2.0, 5.0)  # finite horizons tested, methodology 
 EXP1_N_STEPS_PAPER = 10_000  # steps per unit time, implementation_notes: dt = T/10000
 EXP1_N_STEPS_RUN = 2_000
 EXP1_N_PATHS_PAPER = 100_000  # implementation_notes: N = 100,000 paths
-EXP1_N_PATHS_RUN = 20_000
+EXP1_N_PATHS_RUN = 60_000
 EXP1_EPS = 1e-10  # exit threshold for the shifted CIR factor, implementation_notes
 
 # --------------------------------------------------------------------------
@@ -57,7 +57,7 @@ EXP2_T_GRID = (0.1, 0.5, 1.0, 2.0, 5.0)  # methodology step 5
 EXP2_N_STEPS_PAPER = 20_000  # implementation_notes: dt = T/20000
 EXP2_N_STEPS_RUN = 3_000
 EXP2_N_PATHS_PAPER = 100_000
-EXP2_N_PATHS_RUN = 20_000
+EXP2_N_PATHS_RUN = 60_000
 EXP2_EPS = 1e-10
 
 # --------------------------------------------------------------------------
@@ -77,7 +77,7 @@ EXP3_T_GRID = (0.5, 1.0, 2.0, 5.0)
 EXP3_N_STEPS_PAPER = 20_000
 EXP3_N_STEPS_RUN = 3_000
 EXP3_N_PATHS_PAPER = 100_000
-EXP3_N_PATHS_RUN = 20_000
+EXP3_N_PATHS_RUN = 60_000
 EXP3_EPS = 1e-10
 
 # --------------------------------------------------------------------------

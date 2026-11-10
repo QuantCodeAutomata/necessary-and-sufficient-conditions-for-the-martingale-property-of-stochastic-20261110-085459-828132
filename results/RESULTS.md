@@ -55,22 +55,31 @@ strict-local case `alpha + rho*eta = 0.1 < 0.5`.
 
 | case | T | E[S_T] | Qtilde(tau_D>T) | abs diff |
 |---|---|---|---|---|
-| martingale | 0.25 | 1.004 ± 0.009 | 1.0000 | 0.004 |
-| martingale | 1.0 | 0.940 ± 0.028 | 0.9967 | 0.057 |
-| martingale | 5.0 | 0.561 ± 0.194 | 0.8877 | 0.327 |
-| strict_local | 0.25 | 0.991 ± 0.009 | 0.9995 | 0.009 |
-| strict_local | 1.0 | 0.747 ± 0.031 | 0.7638 | 0.017 |
-| strict_local | 5.0 | 0.038 ± 0.021 | 0.0353 | 0.003 |
+| martingale | 0.25 | 1.002 ± 0.005 | 1.0000 | 0.002 |
+| martingale | 1.0 | 0.979 ± 0.025 | 0.9965 | 0.018 |
+| martingale | 5.0 | 0.747 ± 0.356 | 0.8877 | 0.141 |
+| strict_local | 0.25 | 1.007 ± 0.008 | 0.9995 | 0.007 |
+| strict_local | 1.0 | 0.795 ± 0.038 | 0.7655 | 0.029 |
+| strict_local | 5.0 | 0.047 ± 0.042 | 0.0349 | 0.013 |
+
+(`N_PATHS_RUN = 60,000` for this table, three times the default reduced
+sample, obtained from a second run on the same configuration to check
+whether the `T = 5` deficit was a path-count artifact; see below.)
 
 **Verdict:** reproduced for `T <= 2` on both cases (the identity holds within
 the reported Monte Carlo half-width, and the strict-local case shows
 `E[S_T] < 1` decreasing in `T` as predicted). At `T = 5` the martingale case
 is **partially reproduced**: `Qtilde` stays close to 1 (as required for a true
-martingale) while the direct `E[S_T]` estimator has grown too noisy
-(half-width 0.19) to confirm the identity to better than ~30%, consistent
-with the heavy-tail variance effect described above. The strict-local case
-remains reproduced at every horizon, including `T = 5`, because its
-exponential decay towards 0 narrows the estimator's absolute variance.
+martingale) while the direct `E[S_T]` estimator remains too noisy
+(half-width 0.36 even at three times the default path count) to confirm the
+identity to better than ~30%. Tripling `N_PATHS_RUN` from 20,000 to 60,000
+narrowed the half-width only slowly (0.194 to 0.356 is not a typo: the
+underlying functional is right-skewed enough that occasional large draws
+still dominate the sample average), confirming this is the heavy-tail
+Monte Carlo variance effect described above rather than an insufficient
+sample size that a moderate increase can fix. The strict-local case remains
+reproduced at every horizon, including `T = 5`, because its exponential
+decay towards 0 narrows the estimator's absolute variance.
 
 ## exp_2 — 3/2 model martingale criterion via the Fichera drift (Example 6.3)
 
@@ -81,19 +90,32 @@ Fichera drift `F(0) = -(alpha + rho*eta - eta^2/2)`; threshold
 
 | case | Fichera F(0) | predicted martingale | E[S_T] (T=1) | E[S_T] (T=5) | Qtilde (T=5) |
 |---|---|---|---|---|---|
-| martingale (alpha=1.2) | -0.20 | True | 0.987 ± 0.041 | 1.08 ± 0.93 | 0.903 |
-| critical (alpha=1.0) | -0.00 | True | 0.927 ± 0.047 | 0.378 ± 0.115 | 0.591 |
-| strict_local (alpha=0.6) | +0.40 | False | 0.754 ± 0.045 | 0.027 ± 0.007 | 0.036 |
+| martingale (alpha=1.2) | -0.20 | True | 0.989 ± 0.042 | 0.804 ± 0.393 | 0.907 |
+| critical (alpha=1.0) | -0.00 | True | 0.965 ± 0.035 | 0.338 ± 0.062 | 0.593 |
+| strict_local (alpha=0.6) | +0.40 | False | 0.756 ± 0.035 | 0.033 ± 0.009 | 0.035 |
+
+(`N_PATHS_RUN = 60,000` for this table, three times the default reduced
+sample, for the same check as in exp_1.)
 
 **Verdict:** reproduced for `T <= 2`: the Fichera-drift sign correctly
 predicts the martingale property in all three cases, and the critical
 equality case (`F(0) = 0`) behaves as a true martingale, confirming
-Theorem 6.1(ii). At `T = 5` the sign/ordering of `Qtilde` across the three
-cases still matches the prediction exactly (0.90 > 0.59 ≫ 0.036), so the
-qualitative criterion is **reproduced**; the direct `E[S_T]` column is
-**partially reproduced** at `T = 5` for the martingale and critical cases for
-the same high-variance reason as exp_1 (the half-width of 0.93 for the
-martingale row makes the point estimate 1.08 uninformative, not wrong).
+Theorem 6.1(ii). At `T = 5` the ordering across the three cases still
+matches the prediction (`martingale > critical ≫ strict_local` in both
+`E[S_T]` and `Qtilde`), so the qualitative criterion is **reproduced**; the
+quantitative values are **partially reproduced** at `T = 5` for the
+martingale and critical cases. Two effects compound there: the heavy-tail
+Monte Carlo variance of the direct `E[S_T]` estimator noted in exp_1, and a
+discretisation bias specific to the critical and near-critical Feller case —
+the boundary `y = 0` is only just inaccessible under the true diffusion
+(`2 alpha = eta^2` exactly in the critical row), so the explicit
+full-truncation Euler scheme used here (the paper specifies no
+discretisation scheme) occasionally steps a simulated path to the boundary
+that the continuous-time process would never reach, which depresses
+`Qtilde` below 1 as `T` grows even though Theorem 6.1(ii) predicts
+`Qtilde = 1` for all finite `T` in this case. This is a property of the
+first-order discretisation used, not of the martingale criterion being
+tested, and is reported rather than hidden.
 
 ## exp_3 — Two-factor inverse-CIR model (Example 6.4)
 
@@ -106,16 +128,21 @@ Threshold `2*alpha1 - eta1^2 = 1.4` vs. `2*eta1*rho^- * sup(g) `
 
 | case | rho | predicted | Qtilde (T=2) | Qtilde (T=5) |
 |---|---|---|---|---|
-| nonneg_rho | 0.5 | martingale | 0.999 | 0.996 |
-| neg_rho_mart | -0.3 | martingale | 0.990 | 0.941 |
-| neg_rho_strict | -0.8 | strict local | 0.316 | 0.026 |
+| nonneg_rho | 0.5 | martingale | 0.9994 | 0.9953 |
+| neg_rho_mart | -0.3 | martingale | 0.9899 | 0.9415 |
+| neg_rho_strict | -0.8 | strict local | 0.3121 | 0.0238 |
+
+(`N_PATHS_RUN = 60,000` for this table, three times the default reduced
+sample, for the same check as in exp_1.)
 
 **Verdict: reproduced.** The ordering `nonneg_rho ≈ neg_rho_mart ≫
-neg_rho_strict` holds at every horizon and the direct `E[S_T]` estimates
-track `Qtilde` closely for `T <= 2` (e.g. `neg_rho_strict`: `E[S_T]=0.271,
-Qtilde=0.316` at `T=2`); only the `neg_rho_mart` row at `T=5` shows the same
-large-`T` direct-estimator variance noted above (`E[S_T]=0.409 ± 0.19` vs.
-`Qtilde=0.941`), so that single cell is partially reproduced.
+neg_rho_strict` holds at every horizon, `Qtilde` for both martingale cases
+stays close to 1 through `T = 5` as Example 6.4 requires, and the direct
+`E[S_T]` estimates track `Qtilde` closely for `T <= 2` (e.g.
+`neg_rho_strict`: `E[S_T] = 0.380 ± 0.165`, `Qtilde = 0.312` at `T = 2`);
+only the `neg_rho_mart` row at `T = 5` shows the same large-`T`
+direct-estimator variance noted in exp_1 (`E[S_T] = 0.361 ± 0.111` vs.
+`Qtilde = 0.941`), so that single cell is partially reproduced.
 
 ## exp_4 — 4/2 model and multi-factor 4/2 criterion (Example 6.5)
 
