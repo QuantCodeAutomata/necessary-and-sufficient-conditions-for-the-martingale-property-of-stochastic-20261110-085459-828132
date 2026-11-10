@@ -1,21 +1,26 @@
 """2x2 Wishart process boundary accessibility (Proposition 7.2).
 
 Simulates Sigma = [[Sigma11, Sigma12], [Sigma12, Sigma22]] with Q = I, M = 0
-and isotropic Omega = omega*I (omega = sqrt(omega_sq)). Under these choices
-the matrix SDE dSigma = (Omega Omega^T + M Sigma + Sigma M^T) dt +
-sqrt(Sigma) dW Q + Q^T dW^T sqrt(Sigma) reduces to the three coupled scalar
-SDEs (exp_10 implementation notes):
+and isotropic Omega = omega*I (omega = sqrt(omega_sq)). The matrix SDE
+dSigma = (Omega Omega^T + M Sigma + Sigma M^T) dt + sqrt(Sigma) dW Q +
+Q^T dW^T sqrt(Sigma) is discretized with sqrt(Sigma) = L, the lower-triangular
+Cholesky factor of Sigma (exp_10 implementation notes: "use the Cholesky
+decomposition to ensure positive definiteness"), L = [[l11, 0], [l21, l22]]
+with l11 = sqrt(Sigma11), l21 = Sigma12/l11, l22 = sqrt(Sigma22 - l21^2).
+Writing out L dW + dW^T L^T entrywise (W the 2x2 matrix of four independent
+driving Brownian motions W11, W12, W21, W22) gives the coupled scalar system
 
-    dSigma11 = omega^2 dt + 2*sqrt(Sigma11) dW11
-    dSigma22 = omega^2 dt + 2*sqrt(Sigma22) dW22
-    dSigma12 =              sqrt(Sigma11) dW12 + sqrt(Sigma22) dW21
+    dSigma11 = omega^2 dt + 2*l11*dW11
+    dSigma22 = omega^2 dt + 2*(l21*dW12 + l22*dW22)
+    dSigma12 =              l11*dW12 + l21*dW11 + l22*dW21
 
-where W11, W12, W21, W22 are four independent standard Brownian motions (the
-entries of the driving 2x2 matrix Brownian motion W). Discretized by
-full-truncation Euler-Maruyama (same convention as mc_core.cir_step):
-Sigma11, Sigma22 use max(., 0) under the square root and are floored at 0
-after each step, so paths are allowed to actually reach the boundary instead
-of being reflected away from it.
+which keeps the off-diagonal entry's contribution to Sigma22's and Sigma12's
+dynamics (the earlier entrywise-sqrt simplification, correct only when
+Sigma12 = 0, dropped the l21 cross terms and understated the true
+quadratic variation away from the diagonal). Discretized by full-truncation
+Euler-Maruyama (same convention as mc_core.cir_step): Sigma11 and the
+discriminant Sigma22 - l21^2 use max(., 0) under their square roots, and
+Sigma11, Sigma22 are floored at 0 after each step.
 """
 from __future__ import annotations
 
@@ -28,6 +33,16 @@ def lambda_min_2x2(sigma11: np.ndarray, sigma22: np.ndarray, sigma12: np.ndarray
     """Smaller eigenvalue of [[sigma11, sigma12], [sigma12, sigma22]], closed form."""
     disc = np.sqrt((sigma11 - sigma22) ** 2 + 4.0 * sigma12 ** 2)
     return (sigma11 + sigma22 - disc) / 2.0
+
+
+def _cholesky_2x2(sigma11: np.ndarray, sigma22: np.ndarray, sigma12: np.ndarray,
+                   floor: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Lower-triangular Cholesky factor entries (l11, l21, l22) of Sigma."""
+    s11 = np.maximum(sigma11, floor)
+    l11 = np.sqrt(s11)
+    l21 = np.where(s11 > floor, sigma12 / np.where(s11 > floor, l11, 1.0), 0.0)
+    l22 = np.sqrt(np.maximum(sigma22 - l21 ** 2, 0.0))
+    return l11, l21, l22
 
 
 def simulate_min_eigenvalue_paths(
@@ -53,16 +68,16 @@ def simulate_min_eigenvalue_paths(
         sigma22 = np.full(size, sigma22_0)
         sigma12 = np.full(size, sigma12_0)
         running_min = lambda_min_2x2(sigma11, sigma22, sigma12).copy()
+        floor = 1e-12
         for _ in range(n_steps):
             dw11 = rng.standard_normal(size) * sqrt_dt
             dw12 = rng.standard_normal(size) * sqrt_dt
             dw21 = rng.standard_normal(size) * sqrt_dt
             dw22 = rng.standard_normal(size) * sqrt_dt
-            sqrt_s11 = np.sqrt(np.maximum(sigma11, 0.0))
-            sqrt_s22 = np.sqrt(np.maximum(sigma22, 0.0))
-            sigma11 = np.maximum(sigma11 + omega_sq * dt + 2.0 * sqrt_s11 * dw11, 0.0)
-            sigma22 = np.maximum(sigma22 + omega_sq * dt + 2.0 * sqrt_s22 * dw22, 0.0)
-            sigma12 = sigma12 + sqrt_s11 * dw12 + sqrt_s22 * dw21
+            l11, l21, l22 = _cholesky_2x2(sigma11, sigma22, sigma12, floor)
+            sigma11 = np.maximum(sigma11 + omega_sq * dt + 2.0 * l11 * dw11, 0.0)
+            sigma22 = np.maximum(sigma22 + omega_sq * dt + 2.0 * (l21 * dw12 + l22 * dw22), 0.0)
+            sigma12 = sigma12 + l11 * dw12 + l21 * dw11 + l22 * dw21
             running_min = np.minimum(running_min, lambda_min_2x2(sigma11, sigma22, sigma12))
         out[start:start + size] = running_min
         start += size

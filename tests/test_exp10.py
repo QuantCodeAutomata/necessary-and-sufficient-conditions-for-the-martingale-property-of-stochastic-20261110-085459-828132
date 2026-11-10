@@ -43,13 +43,11 @@ def test_criteria_qualitative_facts() -> None:
     )
 
 
-# This simplified (componentwise-sqrt) discretization of the n=2 Wishart SDE
-# does not exactly preserve positive semi-definiteness away from Sigma12=0
-# (the true matrix square root's off-diagonal entry is dropped, per the
-# literal equations in the exp_10 implementation notes), so moderate omega_sq
-# values such as the EXP10_OMEGA_SQ_CASES (up to 4.0) still show a sizeable
-# boundary-hit rate over T=1 at these tiny step/path counts. A substantially
-# larger omega_sq is used here to exercise the "well above threshold" regime.
+# A substantially larger omega_sq than the EXP10_OMEGA_SQ_CASES is used here
+# so that the "well above threshold" regime is unambiguous even at the tiny
+# step/path counts of a unit test (the discretization bias of the Euler
+# scheme near the boundary still gives a non-negligible hit rate close to
+# the exact n+1 = 3 threshold at coarse resolution).
 WELL_ABOVE_THRESHOLD_OMEGA_SQ = 100.0
 
 
