@@ -1,0 +1,10 @@
+case,omega_sq,fichera_drift,predicted_boundary_inaccessible,naive_cir_threshold_is_wrong,T,P(boundary_hit_by_T),n_paths,n_steps
+above_threshold,4.0,-1.0,True,False,1.0,0.6367,20000,1500
+above_threshold,4.0,-1.0,True,False,5.0,0.85775,20000,1500
+above_threshold,4.0,-1.0,True,False,10.0,0.9022,20000,1500
+critical,3.0,-0.0,True,False,1.0,0.7515,20000,1500
+critical,3.0,-0.0,True,False,5.0,0.93395,20000,1500
+critical,3.0,-0.0,True,False,10.0,0.9632,20000,1500
+below_threshold,2.0,1.0,False,True,1.0,0.85845,20000,1500
+below_threshold,2.0,1.0,False,True,5.0,0.98185,20000,1500
+below_threshold,2.0,1.0,False,True,10.0,0.99105,20000,1500
