@@ -1,14 +1,15 @@
 """Module-level configuration for every experiment.
 
-All parameter values are taken from the methodology and implementation notes
-of the corresponding experiment; the paper itself (Bayraktar & Xing) states
-the model coefficients symbolically but does not fix Monte Carlo sample
-sizes or time-discretization steps for numerical verification (this is noted
-as an open point in every experiment's description). Each experiment keeps a
-*_PAPER variant (the sample size and step count suggested by the experiment's
-implementation notes) and a *_RUN variant (the configuration actually
-executed by default, to fit the available computation time). Pass --full on
-any exp/exp*.py script to use the *_PAPER configuration instead.
+All model coefficients (drifts, diffusion parameters, correlations) are taken
+from the paper's examples and theorems (Bayraktar & Xing), cited section by
+section below. The paper states these coefficients symbolically but does not
+fix a Monte Carlo sample size or time-discretization step for any of its
+numerical verifications; where a variable's comment says "not specified in
+the paper", its value is our own choice. Each experiment keeps a *_PAPER
+variant (a sample size and step count fine enough to resolve the paper's
+examples) and a *_RUN variant (the configuration executed by default, to fit
+the available computation time). Pass --full on any exp/exp*.py script to use
+the *_PAPER configuration instead.
 
 Running paths are never stored in full (see src/mc_core.py); peak memory for
 one simulation call is O(n_paths * state_dim), so PATHS_CHUNK merely bounds

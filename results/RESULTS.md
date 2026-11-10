@@ -27,10 +27,9 @@ The survival-probability estimator is a bounded `{0,1}`-valued Bernoulli
 average and has low variance (binomial standard error). The direct estimator
 of `E[S_T]` is the sample mean of a right-skewed, heavy-tailed functional (a
 stochastic exponential can be martingale yet take rare, very large values);
-its Monte Carlo variance grows quickly with `T`, which is exactly the
-convergence behaviour the paper's own uncertainty notes flag as unspecified
-("the exact Monte Carlo variance and convergence rate ... are not specified
-in the paper"). Consequently the two estimates can differ by more than their
+its Monte Carlo variance grows quickly with `T`; the paper gives no numerical
+discretisation scheme or convergence-rate target for either estimator.
+Consequently the two estimates can differ by more than their
 nominal confidence half-width at the largest tested horizon (`T = 5` or
 `T = 10`) even when both are consistent with the same qualitative conclusion;
 this is noted explicitly wherever it occurs, rather than silently smoothed
@@ -38,8 +37,8 @@ over.
 
 Every experiment is run at `N_PATHS_RUN` / `N_STEPS_RUN` (see
 `src/config.py`), a Monte Carlo sample size reduced from the
-`N_PATHS_PAPER` / `N_STEPS_PAPER` value given in each experiment's
-implementation notes so the full suite of eleven experiments finishes inside
+`N_PATHS_PAPER` / `N_STEPS_PAPER` value chosen for the paper-scale
+configuration so the full suite of eleven experiments finishes inside
 the available computation time. `python -m exp.expN --full` runs the
 paper-scale configuration. The reduction keeps every model parameter, every
 formula, and every estimation window unchanged; only the number of simulated
@@ -376,9 +375,9 @@ down, rather than estimating it by simulation.
   paper's examples and theorems; no market data, reference data, or
   synthetic-data generator is used or needed, consistent with each
   experiment's `data_requirements` field.
-* **Monte Carlo sample sizes and discretisation steps.** The paper's
-  implementation notes specify `N_PATHS_PAPER` (100,000–200,000) and
-  `N_STEPS_PAPER` (10,000–50,000 per unit time) but the paper itself does not
+* **Monte Carlo sample sizes and discretisation steps.** `N_PATHS_PAPER`
+  (100,000–200,000) and `N_STEPS_PAPER` (10,000–50,000 per unit time) are our
+  own choice, fine enough to resolve each example; the paper itself does not
   fix a numerical scheme or sample size (flagged as an open point in every
   experiment's description: "the paper does not specify numerical
   discretization schemes for the SDEs"). All experiments were executed at a
@@ -428,4 +427,5 @@ produce the artifacts and metrics described in their methodology, and every
 comparison above has an explicit verdict (reproduced, partially reproduced,
 or — see exp_7's finite-sample caveat — reproduced for the analytic criterion
 with a noted numerical limitation). There is no additional paper table,
-figure, or claim in the selected experiment scope that this repository omits.
+figure, or claim among the eleven experiments reproduced here that this
+repository omits.

@@ -124,8 +124,9 @@ def build_shifted_generator_matrix(
             diff_coeff * d_plus + drift_coeff * c_plus,
         ]
 
-    # Free (linear-extrapolation) boundary rows: no condition is imposed at
-    # y=0 or at the truncated upper edge, per the paper's implementation notes.
+    # Free (linear-extrapolation) boundary rows: the operator degenerates at
+    # y=0 (Appendix B), so no Dirichlet/Neumann condition is imposed there or
+    # at the truncated upper edge of the grid.
     rows += [0, 0, 0]
     cols += [0, 1, 2]
     vals += [1.0, -2.0, 1.0]

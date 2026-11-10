@@ -4,8 +4,9 @@ Simulates Sigma = [[Sigma11, Sigma12], [Sigma12, Sigma22]] with Q = I, M = 0
 and isotropic Omega = omega*I (omega = sqrt(omega_sq)). The matrix SDE
 dSigma = (Omega Omega^T + M Sigma + Sigma M^T) dt + sqrt(Sigma) dW Q +
 Q^T dW^T sqrt(Sigma) is discretized with sqrt(Sigma) = L, the lower-triangular
-Cholesky factor of Sigma (exp_10 implementation notes: "use the Cholesky
-decomposition to ensure positive definiteness"), L = [[l11, 0], [l21, l22]]
+Cholesky factor of Sigma (Proposition 7.2's boundary analysis requires Sigma
+to stay positive semidefinite, so the matrix square root is taken via this
+decomposition), L = [[l11, 0], [l21, l22]]
 with l11 = sqrt(Sigma11), l21 = Sigma12/l11, l22 = sqrt(Sigma22 - l21^2).
 Writing out L dW + dW^T L^T entrywise (W the 2x2 matrix of four independent
 driving Brownian motions W11, W12, W21, W22) gives the coupled scalar system

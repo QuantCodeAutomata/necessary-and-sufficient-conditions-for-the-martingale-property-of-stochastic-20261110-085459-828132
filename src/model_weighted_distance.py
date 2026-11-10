@@ -102,7 +102,7 @@ def simulate_shifted_survival(
 def euclidean_projection_integral(c_bar: float, r0: float = 0.1) -> float:
     """Naive Euclidean-projection diagnostic integral for Example 5.2.
 
-    Implementation notes: A_pi = 4, B_pi = 6, C_pi = -8*c_bar, so
+    Per Example 5.2: A_pi = 4, B_pi = 6, C_pi = -8*c_bar, so
     beta = (B_pi - A_pi + C_pi) / A_pi = 0.5 - 2*c_bar (constant, since A_pi,
     B_pi, C_pi do not depend on r here). The diagnostic integral is
         J = int_0^{r0} exp(int_u^{r0} beta/s ds) du
