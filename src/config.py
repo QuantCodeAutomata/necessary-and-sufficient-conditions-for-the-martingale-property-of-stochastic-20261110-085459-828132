@@ -88,6 +88,10 @@ EXP4_RHO = -0.5
 EXP4_B_FIXED = 0.5  # alpha + rho*eta*b = 0.4-0.25 = 0.15 < eta^2/2 = 0.5 -> strict local martingale for every a
 EXP4_A_GRID = (0.0, 0.5, 1.0, 2.0)  # Heston weight a, should not affect martingality (Corollary 3.1)
 EXP4_B_GRID = (0.1, 0.3, 0.5, 0.7, 0.9, 1.1)  # crossing alpha+rho*eta*b = eta^2/2 at b = 0.8
+# alpha used only for the vary_b sweep so that the crossing in EXP4_B_GRID actually falls
+# inside the grid (Example 6.5 methodology step 6: "vary b to cross the threshold"); with
+# EXP4_ALPHA=0.4 and EXP4_RHO<0 the threshold b*=-0.2 is never reached by b>=0.
+EXP4_ALPHA_VARY_B = 0.9
 EXP4_T_GRID = (0.5, 1.0, 2.0, 5.0)
 EXP4_N_STEPS_PAPER = 20_000
 EXP4_N_STEPS_RUN = 3_000

@@ -55,10 +55,13 @@ def run_one_factor(full: bool) -> list[dict]:
             print(f"vary_a  a={a:.2f} b={cfg.EXP4_B_FIXED:.2f} T={T:4.1f} E[S_T]={e_s:.4f}+-{ci:.4f}")
 
     # Vary b at a=0 (pure 3/2 behaviour, inverse-CIR limit) across the threshold.
+    # EXP4_ALPHA_VARY_B (not EXP4_ALPHA) is used here so the crossing alpha+rho*eta*b=eta^2/2
+    # actually falls inside EXP4_B_GRID, as required to show the martingale -> strict local
+    # martingale transition (Example 6.5 methodology step 6).
     for b in cfg.EXP4_B_GRID:
-        predicted = is_martingale_4_2(cfg.EXP4_ALPHA, cfg.EXP4_ETA, cfg.EXP4_RHO, b)
+        predicted = is_martingale_4_2(cfg.EXP4_ALPHA_VARY_B, cfg.EXP4_ETA, cfg.EXP4_RHO, b)
         T = cfg.EXP4_T_GRID[-1]
-        s_t = sim_one_factor(cfg.EXP4_ALPHA, cfg.EXP4_KAPPA, cfg.EXP4_ETA, cfg.EXP4_RHO,
+        s_t = sim_one_factor(cfg.EXP4_ALPHA_VARY_B, cfg.EXP4_KAPPA, cfg.EXP4_ETA, cfg.EXP4_RHO,
                               0.0, b, cfg.EXP4_V0, T, n_steps, n_paths, rng)
         e_s, ci = mc_mean_ci(s_t, cfg.CONFIDENCE)
         rows.append({"sweep": "vary_b", "a": 0.0, "b": b, "T": T,
